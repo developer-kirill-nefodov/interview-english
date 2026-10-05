@@ -336,3 +336,8 @@ p code, li code { white-space: nowrap; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 .contents { display: contents; }
+/* Translations in the learner's language, under or next to the English text. */
+.gloss { display: block; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+p.gloss { margin: 4px 0 0; }
+.gloss-inline { font-weight: 400; color: var(--muted); }
+.gloss-hero { display: block; margin-top: 4px; font-size: 14px; opacity: .8; }

@@ -14,6 +14,7 @@ import { t } from "../lib/i18n";
 import type { TaskResult } from "../mission/formats";
 import {
   Card,
+  Gloss,
   Corrections,
   DictationBox,
   PhraseList,
@@ -175,6 +176,7 @@ export function Workspace({
             </div>
             <p>
               <b>{current.goal}</b>
+              <Gloss en={current.goal} block />
             </p>
             <PhraseList phrases={current.phrases} />
             {step === 0 && (
@@ -207,7 +209,10 @@ export function Workspace({
             ) : (
               <ol>
                 {problem.hints.slice(0, hints).map((h) => (
-                  <li key={h}>{h}</li>
+                  <li key={h}>
+                    {h}
+                    <Gloss en={h} block />
+                  </li>
                 ))}
               </ol>
             )}

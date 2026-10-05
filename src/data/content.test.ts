@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { PROBLEMS } from "./problems";
+import { CODING_STEPS, PROBLEMS } from "./problems";
 import { QUESTIONS } from "./questions";
 import { PATTERNS, STORY_PROMPTS } from "./patterns";
 import { PHRASEBOOK } from "./phrases";
-import { FORMATS, STAGES } from "../lib/mission";
+import { FORMATS, SKILL_LABELS, STAGES } from "../lib/mission";
+import { DICT } from "../i18n/dict";
 import { LANGS, type Tr } from "../lib/i18n";
 import { reviewSpeech } from "../lib/offlineReview";
 
@@ -76,6 +77,19 @@ describe("content", () => {
       const pool = QUESTIONS.filter((q) => s.categories.includes(q.category));
       expect(pool.length, s.id).toBeGreaterThan(0);
     }
+  });
+
+  it("terms, tips, hints and model answers have translations in every hint language", () => {
+    const texts = [
+      ...QUESTIONS.flatMap((q) => [...q.tips, ...q.phrases, ...q.keyTerms, q.sample]),
+      ...PROBLEMS.flatMap((p) => [...p.clarify, ...p.hints]),
+      ...CODING_STEPS.flatMap((c) => [c.title, c.goal, ...c.phrases]),
+      ...PATTERNS.flatMap((p) => [p.name, p.problem, p.answer, p.explain]),
+      ...Object.values(FORMATS).map((f) => f.blurb),
+      ...Object.values(SKILL_LABELS),
+    ];
+    const missing = [...new Set(texts)].flatMap((en) => LANGS.filter((l) => !DICT[en]?.[l]?.trim()).map((l) => `${l}: ${en.slice(0, 60)}`));
+    expect(missing).toEqual([]);
   });
 
   it("every hint has a translation in every hint language", () => {

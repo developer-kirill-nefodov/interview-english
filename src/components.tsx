@@ -3,7 +3,7 @@ import { Languages, Mic, Square, Volume2 } from "lucide-react";
 import { speak, speechRecognitionSupported, useDictation } from "./lib/speech";
 import type { Correction } from "./lib/api";
 import type { OfflineReview } from "./lib/offlineReview";
-import { HINT_LANGS, t, type HintLang } from "./lib/i18n";
+import { HINT_LANGS, t, tx, type HintLang } from "./lib/i18n";
 import { getState, setHintLang, useStore } from "./lib/store";
 
 export function useStopwatch(running: boolean) {
@@ -34,7 +34,10 @@ export function PhraseList({ phrases }: { phrases: readonly string[] }) {
           <button className="icon-btn" onClick={() => speak(p.replace(/…/g, ""))} title="Listen" aria-label={`Listen: ${p}`}>
             <Volume2 size={15} />
           </button>
-          <span>{p}</span>
+          <span>
+            {p}
+            <Gloss en={p} />
+          </span>
         </li>
       ))}
     </ul>
@@ -186,12 +189,12 @@ export function OfflineFeedback({ review }: { review: OfflineReview }) {
           <div className="chips">
             {review.coveredTerms.map((t) => (
               <span key={t} className="chip ok">
-                ✓ {t}
+                ✓ <Term en={t} />
               </span>
             ))}
             {review.missedTerms.map((t) => (
               <span key={t} className="chip">
-                {t}
+                <Term en={t} />
               </span>
             ))}
           </div>
@@ -287,6 +290,24 @@ export function useCountdown(seconds: number, running: boolean, onEnd: () => voi
     if (running && left === 0) endRef.current();
   }, [left, running]);
   return [left, setLeft] as const;
+}
+
+/** The translation of an English text in the learner's hint language, shown small under it. */
+export function Gloss({ en, block }: { en: string; block?: boolean }) {
+  const tr = tx(en, useStore().hintLang);
+  if (!tr) return null;
+  return block ? <p className="gloss">{tr}</p> : <span className="gloss">{tr}</span>;
+}
+
+/** A term with its translation in brackets, e.g. “bottleneck (узкое место)”. */
+export function Term({ en }: { en: string }) {
+  const tr = tx(en, useStore().hintLang);
+  return (
+    <>
+      {en}
+      {tr && <span className="gloss-inline"> — {tr}</span>}
+    </>
+  );
 }
 
 /** Choose the language for hints and translations. */

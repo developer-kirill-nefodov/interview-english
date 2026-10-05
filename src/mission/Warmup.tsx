@@ -3,7 +3,9 @@ import { Check, Eye, RotateCcw } from "lucide-react";
 import type { Card as SrsCard, Deck } from "../lib/srs";
 import { cardFront, gradeCard, useStore } from "../lib/store";
 import { speak } from "../lib/speech";
-import { SpeakButton } from "../components";
+import { Gloss, SpeakButton } from "../components";
+import { PATTERNS } from "../data/patterns";
+import { tx } from "../lib/i18n";
 
 export const DECK_INFO: Record<Deck, { label: string; prompt: string }> = {
   mistake: { label: "Your mistake", prompt: "Say it correctly, out loud" },
@@ -50,6 +52,7 @@ export function Warmup({
 
   const card = cards[i];
   const info = DECK_INFO[card.deck];
+  const pattern = card.deck === "pattern" && hintLang !== "none" ? PATTERNS.find((p) => card.id === `pattern:${p.id}`) : undefined;
   const isNew = card.reviews === 0;
   const next = (ok: boolean) => {
     gradeCard(card.id, ok);
@@ -78,9 +81,15 @@ export function Warmup({
           {isNew && <span className="chip ok deck">New</span>}
         </div>
         <div className="front">{card.deck === "mistake" ? <s className="faint">{card.front}</s> : cardFront(card, hintLang)}</div>
+        {card.deck === "pattern" && <Gloss en={card.front} block />}
         {isNew ? (
           <>
             <div className="back">{card.back}</div>
+            {pattern && (
+              <p className="gloss">
+                {tx(pattern.name, hintLang)}. {tx(pattern.answer, hintLang)}
+              </p>
+            )}
             {card.note && <p className="muted small">{card.note}</p>}
             <p className="muted small">New card: listen, then say it out loud twice. Next time you'll recall it on your own.</p>
             <div className="row" style={{ justifyContent: "center" }}>
@@ -92,7 +101,10 @@ export function Warmup({
           </>
         ) : !shown ? (
           <>
-            <p className="muted small">{info.prompt}</p>
+            <p className="muted small">
+              {info.prompt}
+              <Gloss en={info.prompt} block />
+            </p>
             <button
               className="btn primary"
               style={{ alignSelf: "center" }}
@@ -107,6 +119,11 @@ export function Warmup({
         ) : (
           <>
             <div className="back">{card.back}</div>
+            {pattern && (
+              <p className="gloss">
+                {tx(pattern.name, hintLang)}. {tx(pattern.answer, hintLang)}
+              </p>
+            )}
             {card.note && <p className="muted small">{card.note}</p>}
             <div className="row" style={{ justifyContent: "center" }}>
               <SpeakButton text={card.back} />
