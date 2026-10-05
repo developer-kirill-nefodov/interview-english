@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, Eye, RotateCcw } from "lucide-react";
 import type { Card as SrsCard, Deck } from "../lib/srs";
-import { gradeCard } from "../lib/store";
+import { cardFront, gradeCard, useStore } from "../lib/store";
 import { speak } from "../lib/speech";
 import { SpeakButton } from "../components";
 
@@ -32,6 +32,7 @@ export function Warmup({
   onDone: (stats: WarmupStats) => void;
   mode?: "warmup" | "review";
 }) {
+  const { hintLang } = useStore();
   const [i, setI] = useState(0);
   const [shown, setShown] = useState(false);
   const [stats, setStats] = useState<WarmupStats>({ reviewed: 0, remembered: 0, learned: 0 });
@@ -76,7 +77,7 @@ export function Warmup({
           <span className="chip accent deck">{info.label}</span>
           {isNew && <span className="chip ok deck">New</span>}
         </div>
-        <div className="front">{card.deck === "mistake" ? <s className="faint">{card.front}</s> : card.front}</div>
+        <div className="front">{card.deck === "mistake" ? <s className="faint">{card.front}</s> : cardFront(card, hintLang)}</div>
         {isNew ? (
           <>
             <div className="back">{card.back}</div>

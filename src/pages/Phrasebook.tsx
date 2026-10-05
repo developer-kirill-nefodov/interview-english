@@ -1,10 +1,12 @@
-import { useState } from "react";
 import { PHRASEBOOK } from "../data/phrases";
 import { Volume2 } from "lucide-react";
+import { t } from "../lib/i18n";
 import { speak } from "../lib/speech";
+import { useStore } from "../lib/store";
+import { HintLangPicker } from "../components";
 
 export function Phrasebook() {
-  const [showRu, setShowRu] = useState(true);
+  const lang = useStore().hintLang;
   return (
     <div className="page">
       <div className="row spread">
@@ -12,15 +14,13 @@ export function Phrasebook() {
           <span className="eyebrow">Learn</span>
           <h1>Phrasebook</h1>
         </div>
-        <label className="check">
-          <input type="checkbox" checked={showRu} onChange={(e) => setShowRu(e.target.checked)} /> Russian
-        </label>
+        <HintLangPicker />
       </div>
       <p className="lead">Learn these by heart. Click a phrase to hear it, then repeat it out loud.</p>
       {PHRASEBOOK.map((g) => (
         <section key={g.title} className="card">
           <h3>
-            {g.title} {showRu && <span className="muted small">· {g.ru}</span>}
+            {g.title} {t(g.tr, lang) && <span className="muted small">· {t(g.tr, lang)}</span>}
           </h3>
           <ul className="phrases">
             {g.phrases.map((p) => (
@@ -30,7 +30,7 @@ export function Phrasebook() {
                 </button>
                 <span>
                   {p.en}
-                  {showRu && <span className="muted small"> — {p.ru}</span>}
+                  {t(p.tr, lang) && <span className="muted small"> — {t(p.tr, lang)}</span>}
                 </span>
               </li>
             ))}

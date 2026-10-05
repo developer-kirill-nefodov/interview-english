@@ -6,9 +6,7 @@ export function speak(text: string, rate = 0.95) {
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
   u.rate = rate;
-  const voice = window.speechSynthesis
-    .getVoices()
-    .find((v) => v.lang === "en-US" && /natural|google|samantha/i.test(v.name));
+  const voice = window.speechSynthesis.getVoices().find((v) => v.lang === "en-US" && /natural|google|samantha/i.test(v.name));
   if (voice) u.voice = voice;
   window.speechSynthesis.speak(u);
 }
@@ -36,8 +34,7 @@ function createRecognition(): Recognition | null {
 }
 
 export const speechRecognitionSupported =
-  typeof window !== "undefined" &&
-  Boolean((window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition);
+  typeof window !== "undefined" && Boolean((window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition);
 
 /**
  * Continuous English speech-to-text. `transcript` accumulates final results;

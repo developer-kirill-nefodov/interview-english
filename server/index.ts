@@ -3,6 +3,7 @@ import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { aiEnabled, reviewAnswer, reviewCoding } from "./ai.ts";
+import { HINT_LANGS } from "../src/lib/i18n.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const isProd = process.env.NODE_ENV === "production";
@@ -17,7 +18,8 @@ app.get("/api/status", (_req, res) => {
   res.json({ ai: aiEnabled });
 });
 
-type Fields = Record<string, { type: "string" | "number"; max?: number; optional?: boolean }>;
+type Fields = Record<string, { type: "string" | "number"; max?: number; optional?: boolean; oneOf?: readonly string[] }>;
+const hintLang = { type: "string", optional: true, oneOf: Object.keys(HINT_LANGS) } as const;
 
 /** Checks the body shape and size, so a bad request gets a 400 and can't run up a big bill. */
 function validate(body: unknown, fields: Fields): string | null {
@@ -28,6 +30,7 @@ function validate(body: unknown, fields: Fields): string | null {
     if (v === undefined && f.optional) continue;
     if (typeof v !== f.type) return `“${name}” must be a ${f.type}`;
     if (typeof v === "string" && v.length > (f.max ?? 2000)) return `“${name}” is too long`;
+    if (f.oneOf && !f.oneOf.includes(v as string)) return `“${name}” is not supported`;
   }
   return null;
 }
@@ -68,7 +71,16 @@ function handle(fields: Fields, fn: (body: any) => Promise<unknown>): express.Re
 
 app.post(
   "/api/review/answer",
-  handle({ question: { type: "string" }, category: { type: "string", max: 50 }, answer: { type: "string", max: 8000 }, durationSec: { type: "number", optional: true } }, reviewAnswer),
+  handle(
+    {
+      question: { type: "string" },
+      category: { type: "string", max: 50 },
+      answer: { type: "string", max: 8000 },
+      durationSec: { type: "number", optional: true },
+      hintLang,
+    },
+    reviewAnswer,
+  ),
 );
 app.post(
   "/api/review/coding",
@@ -80,6 +92,7 @@ app.post(
       explanation: { type: "string", max: 8000 },
       testsPassed: { type: "number" },
       testsTotal: { type: "number" },
+      hintLang,
     },
     reviewCoding,
   ),

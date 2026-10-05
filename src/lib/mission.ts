@@ -1,17 +1,38 @@
+import type { Tr } from "./i18n";
 import type { Category } from "../data/questions";
 import { addDays, daysBetween } from "./srs";
 
 export type Format = "blitz" | "interview" | "approach" | "coding" | "shadowing" | "story" | "final";
 export type Skill = "fluency" | "clarity" | "algorithms" | "vocabulary";
 
-export const FORMATS: Record<Format, { title: string; ru: string; blurb: string }> = {
-  blitz: { title: "Blitz", ru: "Блиц", blurb: "Quick questions, 30 seconds each. Speak first, polish later." },
-  interview: { title: "Deep question", ru: "Глубокий вопрос", blurb: "One real interview question with a full review." },
-  approach: { title: "Approach only", ru: "Только подход", blurb: "Explain how you'd solve a problem out loud, no code." },
-  coding: { title: "Mini live coding", ru: "Мини лайв-кодинг", blurb: "Solve a short problem while thinking aloud." },
-  shadowing: { title: "Shadowing", ru: "Тень", blurb: "Listen to a strong answer and repeat it, sentence by sentence." },
-  story: { title: "My story", ru: "Моя история", blurb: "Build one story from your experience with STAR." },
-  final: { title: "Final interview", ru: "Финальное собеседование", blurb: "Three questions in a row. The hiring decision is at the end." },
+export const FORMATS: Record<Format, { title: string; tr: Tr; blurb: string }> = {
+  blitz: { title: "Blitz", tr: { ru: "Блиц", uk: "Бліц" }, blurb: "Quick questions, 30 seconds each. Speak first, polish later." },
+  interview: {
+    title: "Deep question",
+    tr: { ru: "Глубокий вопрос", uk: "Глибоке питання" },
+    blurb: "One real interview question with a full review.",
+  },
+  approach: {
+    title: "Approach only",
+    tr: { ru: "Только подход", uk: "Лише підхід" },
+    blurb: "Explain how you'd solve a problem out loud, no code.",
+  },
+  coding: {
+    title: "Mini live coding",
+    tr: { ru: "Мини лайв-кодинг", uk: "Міні лайв-кодинг" },
+    blurb: "Solve a short problem while thinking aloud.",
+  },
+  shadowing: {
+    title: "Shadowing",
+    tr: { ru: "Тень", uk: "Тінь" },
+    blurb: "Listen to a strong answer and repeat it, sentence by sentence.",
+  },
+  story: { title: "My story", tr: { ru: "Моя история", uk: "Моя історія" }, blurb: "Build one story from your experience with STAR." },
+  final: {
+    title: "Final interview",
+    tr: { ru: "Финальное собеседование", uk: "Фінальна співбесіда" },
+    blurb: "Three questions in a row. The hiring decision is at the end.",
+  },
 };
 
 export const SKILL_LABELS: Record<Skill, string> = {
@@ -24,18 +45,53 @@ export const SKILL_LABELS: Record<Skill, string> = {
 export interface Stage {
   id: string;
   title: string;
-  ru: string;
+  tr: Tr;
   missions: number;
   formats: Format[];
   categories: Category[];
 }
 
 export const STAGES: Stage[] = [
-  { id: "recruiter", title: "Recruiter screen", ru: "Звонок с рекрутером", missions: 3, formats: ["story", "blitz", "shadowing", "interview"], categories: ["behavioral"] },
-  { id: "tech", title: "Technical screen", ru: "Техническое интервью", missions: 4, formats: ["interview", "approach", "blitz", "shadowing"], categories: ["frontend", "backend", "cs"] },
-  { id: "coding", title: "Live coding round", ru: "Лайв-кодинг", missions: 4, formats: ["coding", "approach", "coding", "approach"], categories: ["cs"] },
-  { id: "design", title: "System design", ru: "Системный дизайн", missions: 3, formats: ["interview", "shadowing", "blitz"], categories: ["design"] },
-  { id: "final", title: "Final round", ru: "Финал", missions: 1, formats: ["final"], categories: ["behavioral", "frontend", "backend", "cs", "design"] },
+  {
+    id: "recruiter",
+    title: "Recruiter screen",
+    tr: { ru: "Звонок с рекрутером", uk: "Дзвінок із рекрутером" },
+    missions: 3,
+    formats: ["story", "blitz", "shadowing", "interview"],
+    categories: ["behavioral"],
+  },
+  {
+    id: "tech",
+    title: "Technical screen",
+    tr: { ru: "Техническое интервью", uk: "Технічна співбесіда" },
+    missions: 4,
+    formats: ["interview", "approach", "blitz", "shadowing"],
+    categories: ["frontend", "backend", "cs"],
+  },
+  {
+    id: "coding",
+    title: "Live coding round",
+    tr: { ru: "Лайв-кодинг", uk: "Лайв-кодинг" },
+    missions: 4,
+    formats: ["coding", "approach", "coding", "approach"],
+    categories: ["cs"],
+  },
+  {
+    id: "design",
+    title: "System design",
+    tr: { ru: "Системный дизайн", uk: "Системний дизайн" },
+    missions: 3,
+    formats: ["interview", "shadowing", "blitz"],
+    categories: ["design"],
+  },
+  {
+    id: "final",
+    title: "Final round",
+    tr: { ru: "Финал", uk: "Фінал" },
+    missions: 1,
+    formats: ["final"],
+    categories: ["behavioral", "frontend", "backend", "cs", "design"],
+  },
 ];
 
 export const COMPANIES = ["Brightloop", "Quillstack", "Orbitly", "Fernwave", "Tidecraft"];

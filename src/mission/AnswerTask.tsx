@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { ChevronRight, Lightbulb, RotateCcw, Snail, UserRound } from "lucide-react";
+import { ChevronRight, Languages, Lightbulb, RotateCcw, Snail, UserRound } from "lucide-react";
 import { reviewAnswer, type AnswerReview, type Correction } from "../lib/api";
 import { reviewSpeech, type OfflineReview } from "../lib/offlineReview";
 import { speak, stopSpeaking } from "../lib/speech";
+import { t, type Tr } from "../lib/i18n";
+import { useStore } from "../lib/store";
 import {
   Card,
   Corrections,
@@ -19,7 +21,8 @@ import {
 export interface TaskQuestion {
   text: string;
   category: string;
-  ru?: string;
+  /** Translation of the question into the hint language. */
+  tr?: Tr;
   tips?: string[];
   phrases?: string[];
   sample?: string;
@@ -68,7 +71,9 @@ export function AnswerTask(props: {
   const [recording, setRecording] = useState(false);
   const [sec, setSec] = useStopwatch(recording);
   const [showText, setShowText] = useState(!props.hideText);
-  const [showRu, setShowRu] = useState(false);
+  const lang = useStore().hintLang;
+  const translation = t(q.tr, lang);
+  const [showTr, setShowTr] = useState(false);
   const [showTips, setShowTips] = useState(false);
   const [result, setResult] = useState<AnswerResult | null>(null);
   const [busy, setBusy] = useState(false);
@@ -97,7 +102,7 @@ export function AnswerTask(props: {
           <div className="bubble">
             {props.label && <span className="eyebrow">{props.label}</span>}
             {showText ? <p className="question">{q.text}</p> : <p className="question hidden">• • • listen</p>}
-            {showRu && q.ru && <p className="muted">{q.ru}</p>}
+            {showTr && translation && <p className="muted">{translation}</p>}
             <div className="row">
               <SpeakButton text={q.text} label="Repeat" />
               <button className="btn ghost small" onClick={() => speak(q.text, 0.75)}>
@@ -108,9 +113,9 @@ export function AnswerTask(props: {
                   Show text
                 </button>
               )}
-              {q.ru && (
-                <button className="btn ghost small" onClick={() => setShowRu(!showRu)}>
-                  RU
+              {translation && (
+                <button className="btn ghost small" onClick={() => setShowTr(!showTr)} aria-pressed={showTr}>
+                  <Languages size={15} /> Translate
                 </button>
               )}
               {(q.tips?.length || q.phrases?.length) && (
@@ -174,7 +179,9 @@ export function AnswerTask(props: {
             ) : (
               <>
                 {!props.ai && (
-                  <p className="note">Quick offline checks. With an Anthropic API key on the server you also get a full review from an AI interviewer.</p>
+                  <p className="note">
+                    Quick offline checks. With an Anthropic API key on the server you also get a full review from an AI interviewer.
+                  </p>
                 )}
                 <OfflineFeedback review={result.offline} />
               </>

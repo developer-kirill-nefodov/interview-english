@@ -1,5 +1,7 @@
 import { BookOpenText, Code2, Footprints, Mic, Repeat2, Timer, Trophy, Waypoints, type LucideIcon } from "lucide-react";
 import { FORMATS, type Format } from "../lib/mission";
+import { t } from "../lib/i18n";
+import { useStore } from "../lib/store";
 
 const ICONS: Record<Format, LucideIcon> = {
   blitz: Timer,
@@ -12,12 +14,15 @@ const ICONS: Record<Format, LucideIcon> = {
 };
 
 export function Practice({ go, onFormat }: { go: (r: string) => void; onFormat: (f: Format) => void }) {
+  const { hintLang } = useStore();
   return (
     <div className="page">
       <div className="page-head">
         <span className="eyebrow">Free practice</span>
         <h1>Practice anything</h1>
-        <p className="lead">The daily mission is the main path. Use this when you want something specific. It doesn't move you through the hiring stages.</p>
+        <p className="lead">
+          The daily mission is the main path. Use this when you want something specific. It doesn't move you through the hiring stages.
+        </p>
       </div>
       <div className="grid-2">
         <button className="card mode" onClick={() => go("interview")}>
@@ -46,6 +51,7 @@ export function Practice({ go, onFormat }: { go: (r: string) => void; onFormat: 
               </span>
               <h3>{FORMATS[f].title}</h3>
               <span className="muted small">{FORMATS[f].blurb}</span>
+              {t(FORMATS[f].tr, hintLang) && <span className="faint small">{t(FORMATS[f].tr, hintLang)}</span>}
             </button>
           );
         })}

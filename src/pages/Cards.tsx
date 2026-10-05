@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layers, Play } from "lucide-react";
 import { dateKey, deckStats, pickWarmup, type Card as SrsCard, type Deck } from "../lib/srs";
-import { useStore } from "../lib/store";
+import { cardFront, useStore } from "../lib/store";
 import { Bar, Card } from "../components";
 import { DECK_INFO, Warmup, type WarmupStats } from "../mission/Warmup";
 
@@ -104,7 +104,7 @@ export function Cards() {
             <tbody>
               {list.slice(0, 60).map((c) => (
                 <tr key={c.id}>
-                  <td>{c.deck === "mistake" ? <s>{c.front}</s> : c.front}</td>
+                  <td>{c.deck === "mistake" ? <s>{c.front}</s> : cardFront(c, state.hintLang)}</td>
                   <td>{c.back}</td>
                   <td className="faint">{c.reviews === 0 ? "new" : c.due <= today ? "today" : c.due}</td>
                 </tr>

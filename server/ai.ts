@@ -1,10 +1,9 @@
+import { HINT_LANGS, type HintLang } from "../src/lib/i18n.ts";
 import Anthropic from "@anthropic-ai/sdk";
 
 const MODEL = "claude-opus-5-5";
 
-export const aiEnabled = Boolean(
-  process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN,
-);
+export const aiEnabled = Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
 
 const client = aiEnabled ? new Anthropic() : null;
 
@@ -34,8 +33,15 @@ const answerSchema = {
     follow_up_question: { type: "string", description: "What a real interviewer would ask next" },
   },
   required: [
-    "english_score", "content_score", "summary", "strengths", "improvements",
-    "corrections", "better_version", "useful_phrases", "follow_up_question",
+    "english_score",
+    "content_score",
+    "summary",
+    "strengths",
+    "improvements",
+    "corrections",
+    "better_version",
+    "useful_phrases",
+    "follow_up_question",
   ],
   additionalProperties: false,
 };
@@ -54,19 +60,32 @@ const codingSchema = {
     follow_up_question: str,
   },
   required: [
-    "communication_score", "code_score", "summary", "strengths", "improvements",
-    "corrections", "complexity_check", "model_explanation", "follow_up_question",
+    "communication_score",
+    "code_score",
+    "summary",
+    "strengths",
+    "improvements",
+    "corrections",
+    "complexity_check",
+    "model_explanation",
+    "follow_up_question",
   ],
   additionalProperties: false,
 };
 
-const SYSTEM = `You are a friendly but honest senior engineer running a mock technical interview in English.
-The candidate is a software developer whose native language is Russian and who is practicing both interviewing and English at the same time.
-Give feedback on two things separately: the substance of the answer, and the English (grammar, word choice, naturalness, typical Russian-speaker mistakes such as missing articles or wrong tenses).
-Be specific and quote their words. Keep explanations short and plain. Write all feedback in English, except that each correction's explanation may add a short Russian hint in parentheses when it helps.
+/** System prompt; hints in the learner's language only when they chose one. */
+function system(lang: HintLang = "none") {
+  const native = lang === "none" ? null : HINT_LANGS[lang].label;
+  return `You are a friendly but honest senior engineer running a mock technical interview in English.
+The candidate is a software developer practicing both interviewing and English at the same time${native ? `; their native language is ${native}` : ""}.
+Give feedback on two things separately: the substance of the answer, and the English (grammar, word choice, naturalness, and typical non-native mistakes such as missing articles or wrong tenses).
+Be specific and quote their words. Keep explanations short and plain. Write all feedback in English${
+    native ? `, except that each correction's explanation may add a short ${native} hint in parentheses when it helps` : ""
+  }.
 If the input was produced by speech recognition, ignore missing punctuation and capitalization.`;
+}
 
-async function ask<T>(schema: Record<string, unknown>, prompt: string): Promise<T> {
+async function ask<T>(schema: Record<string, unknown>, prompt: string, lang?: HintLang): Promise<T> {
   if (!client) throw new Error("AI feedback is not configured");
   const response = await client.beta.messages.create({
     model: MODEL,
@@ -74,7 +93,7 @@ async function ask<T>(schema: Record<string, unknown>, prompt: string): Promise<
     betas: ["server-side-fallback-2026-07-01"],
     fallbacks: "default",
     output_config: { effort: "low", format: { type: "json_schema", schema } },
-    system: SYSTEM,
+    system: system(lang),
     messages: [{ role: "user", content: prompt }],
   });
   if (response.stop_reason === "refusal") throw new Error("The model declined this request");
@@ -83,19 +102,18 @@ async function ask<T>(schema: Record<string, unknown>, prompt: string): Promise<
   return JSON.parse(text.text) as T;
 }
 
-export function reviewAnswer(input: {
-  question: string;
-  category: string;
-  answer: string;
-  durationSec?: number;
-}) {
-  return ask(answerSchema, `Interview category: ${input.category}
+export function reviewAnswer(input: { question: string; category: string; answer: string; durationSec?: number; hintLang?: HintLang }) {
+  return ask(
+    answerSchema,
+    `Interview category: ${input.category}
 Question: ${input.question}
 ${input.durationSec ? `The candidate spoke for ${input.durationSec} seconds.\n` : ""}
 Candidate's answer:
 """
 ${input.answer}
-"""`);
+"""`,
+    input.hintLang,
+  );
 }
 
 export function reviewCoding(input: {
@@ -105,8 +123,11 @@ export function reviewCoding(input: {
   explanation: string;
   testsPassed: number;
   testsTotal: number;
+  hintLang?: HintLang;
 }) {
-  return ask(codingSchema, `This is a live coding round. The candidate solved the problem below and explained their approach in English.
+  return ask(
+    codingSchema,
+    `This is a live coding round. The candidate solved the problem below and explained their approach in English.
 
 Problem: ${input.title}
 ${input.statement}
@@ -121,5 +142,7 @@ ${input.code}
 Candidate's explanation (clarifying questions, approach, complexity):
 """
 ${input.explanation}
-"""`);
+"""`,
+    input.hintLang,
+  );
 }

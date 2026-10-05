@@ -6,6 +6,7 @@ import type { Correction } from "../lib/api";
 import { compareSpoken, reviewSpeech, sentences } from "../lib/offlineReview";
 import { speak, stopSpeaking } from "../lib/speech";
 import { saveStory, useStore } from "../lib/store";
+import { t } from "../lib/i18n";
 import { Card, DictationBox, OfflineFeedback, Score, SpeakButton, fmtTime, offlineToCorrections, useCountdown } from "../components";
 import { AnswerTask, correctionsOf, reviewAll, type AnswerResult } from "./AnswerTask";
 
@@ -34,7 +35,7 @@ function metricsOf(results: AnswerResult[]): Omit<TaskResult, "corrections"> {
 export const toTaskQuestion = (q: Question) => ({
   text: q.text,
   category: CATEGORY_LABELS[q.category],
-  ru: q.ru,
+  tr: q.tr,
   tips: q.tips,
   phrases: q.phrases,
   sample: q.sample,
@@ -428,7 +429,7 @@ const STAR = [
 ] as const;
 
 export function StoryFormat(props: { ai: boolean; onDone: (r: TaskResult) => void }) {
-  const { stories } = useStore();
+  const { stories, hintLang } = useStore();
   const prompt = useMemo(() => {
     const untold = STORY_PROMPTS.find((p) => !stories.some((s) => s.id === p.id));
     return (
@@ -439,6 +440,7 @@ export function StoryFormat(props: { ai: boolean; onDone: (r: TaskResult) => voi
     );
   }, []);
   const existing = stories.find((s) => s.id === prompt.id);
+  const storyTr = t(prompt.tr, hintLang);
   const [fields, setFields] = useState<Record<string, string>>({
     situation: existing?.situation ?? "",
     task: existing?.task ?? "",
@@ -454,7 +456,7 @@ export function StoryFormat(props: { ai: boolean; onDone: (r: TaskResult) => voi
         question={{
           text: prompt.prompt,
           category: "Behavioral (STAR story)",
-          ru: prompt.ru,
+          tr: prompt.tr,
           tips: ["Tell the story in one go, without reading your notes.", "Aim for 1–2 minutes.", "Use “I” for what you did."],
           sample: STAR.map((s) => fields[s.key]).join(" "),
           sampleTitle: "Your notes",
@@ -476,7 +478,8 @@ export function StoryFormat(props: { ai: boolean; onDone: (r: TaskResult) => voi
           {prompt.prompt}
         </p>
         <p className="muted small">
-          {prompt.ru.replace(/\.$/, "")}. A real story from your work, in four short parts. You'll reuse it for many behavioral questions.
+          {storyTr && `${storyTr.replace(/\.$/, "")}. `}A real story from your work, in four short parts. You'll reuse it for many
+          behavioral questions.
         </p>
       </Card>
       <div className="grid-2">

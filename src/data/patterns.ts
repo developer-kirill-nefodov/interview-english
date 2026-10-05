@@ -150,10 +150,34 @@ export const PATTERNS: Pattern[] = [
 ];
 
 export const STORY_PROMPTS = [
-  { id: "bug", prompt: "Tell me about the most difficult bug you've fixed.", ru: "Самый сложный баг, который вы исправили." },
-  { id: "conflict", prompt: "Tell me about a time you disagreed with a colleague.", ru: "Случай, когда вы не согласились с коллегой." },
-  { id: "mistake", prompt: "Tell me about a mistake you made and what you learned.", ru: "Ошибка, которую вы допустили, и чему она вас научила." },
-  { id: "proud", prompt: "What project are you most proud of, and why?", ru: "Каким проектом вы гордитесь больше всего и почему?" },
-  { id: "deadline", prompt: "Tell me about a time you had to deliver under a tight deadline.", ru: "Случай, когда нужно было успеть в сжатые сроки." },
-  { id: "learn", prompt: "Tell me about a time you had to learn something new quickly.", ru: "Случай, когда пришлось быстро освоить что-то новое." },
+  {
+    id: "bug",
+    prompt: "Tell me about the most difficult bug you've fixed.",
+    tr: { ru: "Самый сложный баг, который вы исправили.", uk: "Найскладніший баг, який ви виправили." },
+  },
+  {
+    id: "conflict",
+    prompt: "Tell me about a time you disagreed with a colleague.",
+    tr: { ru: "Случай, когда вы не согласились с коллегой.", uk: "Випадок, коли ви не погодилися з колегою." },
+  },
+  {
+    id: "mistake",
+    prompt: "Tell me about a mistake you made and what you learned.",
+    tr: { ru: "Ошибка, которую вы допустили, и чему она вас научила.", uk: "Помилка, якої ви припустилися, і чого вона вас навчила." },
+  },
+  {
+    id: "proud",
+    prompt: "What project are you most proud of, and why?",
+    tr: { ru: "Каким проектом вы гордитесь больше всего и почему?", uk: "Яким проєктом ви пишаєтеся найбільше і чому?" },
+  },
+  {
+    id: "deadline",
+    prompt: "Tell me about a time you had to deliver under a tight deadline.",
+    tr: { ru: "Случай, когда нужно было успеть в сжатые сроки.", uk: "Випадок, коли треба було встигнути в стислі терміни." },
+  },
+  {
+    id: "learn",
+    prompt: "Tell me about a time you had to learn something new quickly.",
+    tr: { ru: "Случай, когда пришлось быстро освоить что-то новое.", uk: "Випадок, коли довелося швидко освоїти щось нове." },
+  },
 ];

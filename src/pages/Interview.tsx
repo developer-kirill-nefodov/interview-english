@@ -94,12 +94,7 @@ export function Interview({ ai }: { ai: boolean }) {
   );
 }
 
-function Setup(props: {
-  settings: Settings;
-  setSettings: (s: Settings) => void;
-  poolSize: number;
-  onStart: () => void;
-}) {
+function Setup(props: { settings: Settings; setSettings: (s: Settings) => void; poolSize: number; onStart: () => void }) {
   const { settings: s, setSettings } = props;
   const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
@@ -109,8 +104,7 @@ function Setup(props: {
         <span className="eyebrow">Free practice</span>
         <h1>Mock interview</h1>
         <p className="lead">
-          The interviewer asks a question out loud. You answer by voice (or typing), then get feedback on both the content
-          and your English.
+          The interviewer asks a question out loud. You answer by voice (or typing), then get feedback on both the content and your English.
         </p>
       </div>
       <Card title="Topics">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { clearHistory, loadHistory } from "../lib/storage";
 import { resetAll } from "../lib/store";
-import { fmtTime } from "../components";
+import { HintLangPicker, fmtTime } from "../components";
 
 export function Progress() {
   const [history, setHistory] = useState(loadHistory);
@@ -14,6 +14,15 @@ export function Progress() {
         <span className="eyebrow">Learn</span>
         <h1>Progress</h1>
       </div>
+      <section className="card row spread">
+        <div>
+          <h3>Hint language</h3>
+          <p className="muted small">
+            Translations of questions and phrases, and short hints in feedback. The practice itself stays in English.
+          </p>
+        </div>
+        <HintLangPicker />
+      </section>
       <section className="card">
         <div className="row">
           <div className="score">
