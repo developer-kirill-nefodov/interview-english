@@ -3,10 +3,12 @@ import { ChevronRight, Languages, Lightbulb, RotateCcw, Snail, UserRound } from 
 import { reviewAnswer, type AnswerReview, type Correction } from "../lib/api";
 import { reviewSpeech, type OfflineReview } from "../lib/offlineReview";
 import { speak, stopSpeaking } from "../lib/speech";
-import { t, type Tr } from "../lib/i18n";
+import { t, tx, type Tr } from "../lib/i18n";
 import { useStore } from "../lib/store";
 import {
   Card,
+  Gloss,
+  Term,
   Corrections,
   DictationBox,
   OfflineFeedback,
@@ -73,6 +75,7 @@ export function AnswerTask(props: {
   const [showText, setShowText] = useState(!props.hideText);
   const lang = useStore().hintLang;
   const translation = t(q.tr, lang);
+  const sampleTr = q.sample ? tx(q.sample, lang) : undefined;
   const [showTr, setShowTr] = useState(false);
   const [showTips, setShowTips] = useState(false);
   const [result, setResult] = useState<AnswerResult | null>(null);
@@ -131,9 +134,24 @@ export function AnswerTask(props: {
             {q.tips && (
               <ul>
                 {q.tips.map((t) => (
-                  <li key={t}>{t}</li>
+                  <li key={t}>
+                    {t}
+                    <Gloss en={t} block />
+                  </li>
                 ))}
               </ul>
+            )}
+            {q.keyTerms && q.keyTerms.length > 0 && (
+              <>
+                <h4>Key ideas to mention</h4>
+                <div className="chips">
+                  {q.keyTerms.map((k) => (
+                    <span key={k} className="chip">
+                      <Term en={k} />
+                    </span>
+                  ))}
+                </div>
+              </>
             )}
             {q.phrases && (
               <>
@@ -196,6 +214,12 @@ export function AnswerTask(props: {
           {q.sample && (
             <Card title={q.sampleTitle ?? "Model answer"} actions={<SpeakButton text={q.sample} />}>
               <p>{q.sample}</p>
+              {sampleTr && (
+                <details>
+                  <summary>Translation</summary>
+                  <p className="gloss">{sampleTr}</p>
+                </details>
+              )}
               {q.phrases && (
                 <>
                   <h4>Phrases to steal</h4>

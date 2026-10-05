@@ -1,6 +1,7 @@
 import { BookOpenText, Code2, Footprints, Mic, Repeat2, Timer, Trophy, Waypoints, type LucideIcon } from "lucide-react";
 import { FORMATS, type Format } from "../lib/mission";
 import { t } from "../lib/i18n";
+import { Gloss } from "../components";
 import { useStore } from "../lib/store";
 
 const ICONS: Record<Format, LucideIcon> = {
@@ -51,6 +52,7 @@ export function Practice({ go, onFormat }: { go: (r: string) => void; onFormat: 
               </span>
               <h3>{FORMATS[f].title}</h3>
               <span className="muted small">{FORMATS[f].blurb}</span>
+              <Gloss en={FORMATS[f].blurb} />
               {t(FORMATS[f].tr, hintLang) && <span className="faint small">{t(FORMATS[f].tr, hintLang)}</span>}
             </button>
           );

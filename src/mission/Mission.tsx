@@ -6,7 +6,7 @@ import { COMPANIES, FORMATS, STAGES, chooseFormat, isLight, seededRng, weekDays,
 import { type Card as SrsCard, dateKey, pickWarmup } from "../lib/srs";
 import { addMistakeCards, completeMission, getState, snoozeFormat, useStore } from "../lib/store";
 import { Workspace } from "../pages/LiveCoding";
-import { Card, Corrections, Ring } from "../components";
+import { Card, Corrections, Gloss, Ring } from "../components";
 import { Approach, Blitz, Final, InterviewFormat, Shadowing, StoryFormat, pick, type TaskResult } from "./formats";
 import { Warmup, type WarmupStats } from "./Warmup";
 
@@ -128,6 +128,7 @@ export function Mission({ plan, ai, onExit }: { plan: Plan; ai: boolean; onExit:
           <div className="page-head">
             <span className="eyebrow">Warm-up · 2 minutes</span>
             <h1>Remember out loud</h1>
+            <Gloss en="Remember out loud" block />
           </div>
           <Warmup
             cards={plan.cards}
@@ -146,6 +147,7 @@ export function Mission({ plan, ai, onExit }: { plan: Plan; ai: boolean; onExit:
               <span className="eyebrow">{plan.practice ? "Free practice" : `${company} · ${stage.title}`}</span>
               <h1>{FORMATS[format].title}</h1>
               <p className="muted">{FORMATS[format].blurb}</p>
+              <Gloss en={FORMATS[format].blurb} block />
             </div>
             {!plan.practice && format !== "final" && (
               <button className="btn ghost small" onClick={swapFormat} title="Hide this format for a week and pick another one">

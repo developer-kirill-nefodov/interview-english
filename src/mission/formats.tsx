@@ -7,7 +7,18 @@ import { compareSpoken, reviewSpeech, sentences } from "../lib/offlineReview";
 import { speak, stopSpeaking } from "../lib/speech";
 import { saveStory, useStore } from "../lib/store";
 import { t } from "../lib/i18n";
-import { Card, DictationBox, OfflineFeedback, Score, SpeakButton, fmtTime, offlineToCorrections, useCountdown } from "../components";
+import {
+  Card,
+  DictationBox,
+  Gloss,
+  OfflineFeedback,
+  Score,
+  SpeakButton,
+  Term,
+  fmtTime,
+  offlineToCorrections,
+  useCountdown,
+} from "../components";
 import { AnswerTask, correctionsOf, reviewAll, type AnswerResult } from "./AnswerTask";
 
 export interface TaskResult {
@@ -263,7 +274,11 @@ export function Approach(props: { ai: boolean; onDone: (r: TaskResult) => void }
         <p className="question" style={{ margin: "10px 0" }}>
           {p.problem}
         </p>
-        <p className="muted small">Aim for about 1–2 minutes: the simple idea first, then the better one, then complexity.</p>
+        <Gloss en={p.problem} block />
+        <p className="muted small">
+          Aim for about 1–2 minutes: the simple idea first, then the better one, then complexity.
+          <Gloss en="Aim for about 1–2 minutes: the simple idea first, then the better one, then complexity." block />
+        </p>
       </Card>
       {!result ? (
         <Card title="Your explanation">
@@ -291,6 +306,7 @@ export function Approach(props: { ai: boolean; onDone: (r: TaskResult) => void }
               {checks.map((c) => (
                 <li key={c.text} className={c.ok ? "ok" : "miss"}>
                   {c.ok ? <BadgeCheck size={17} /> : <CircleX size={17} />} {c.text}
+                  <Gloss en={c.text.replace(/ \(.*\)$/, "")} />
                 </li>
               ))}
             </ul>
@@ -307,8 +323,12 @@ export function Approach(props: { ai: boolean; onDone: (r: TaskResult) => void }
             <p>
               <b>{p.answer}</b> <span className="muted">{p.complexity}.</span>
             </p>
+            <p>
+              <Gloss en={p.name} /> <Gloss en={p.answer} />
+            </p>
             <h4>How to say it</h4>
             <p className="better">{p.explain}</p>
+            <Gloss en={p.explain} block />
           </Card>
           <button className="btn primary big" onClick={() => props.onDone({ corrections: correctionsOf(result), ...metricsOf([result]) })}>
             Continue <ChevronRight size={18} />
@@ -484,8 +504,11 @@ export function StoryFormat(props: { ai: boolean; onDone: (r: TaskResult) => voi
       </Card>
       <div className="grid-2">
         {STAR.map((s) => (
-          <Card key={s.key} title={s.label}>
-            <p className="muted small">{s.hint}</p>
+          <Card key={s.key} title={<Term en={s.label} />}>
+            <p className="muted small">
+              {s.hint}
+              <Gloss en={s.hint} block />
+            </p>
             <DictationBox
               value={fields[s.key]}
               onChange={(v) => setFields((f) => ({ ...f, [s.key]: v }))}

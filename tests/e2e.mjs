@@ -380,8 +380,9 @@ for (const [name, opts] of [
 await check("hints follow the chosen language and the choice is saved", async () => {
   await page.goto(`${BASE}/#/phrases`);
   const picker = page.getByLabel("Language for hints and translations");
-  assert((await picker.inputValue()) === "none", "an English browser starts with English only");
-  assert(!(await page.getByText("Хороший вопрос").count()), "no Russian before choosing it");
+  assert((await picker.inputValue()) === "ru", "Russian hints by default");
+  await picker.selectOption("none");
+  assert(!(await page.getByText("Хороший вопрос").count()), "no Russian in English only");
   await picker.selectOption("uk");
   await page.getByText("Гарне питання. Дайте секунду подумати.").waitFor();
   await picker.selectOption("ru");
@@ -393,8 +394,8 @@ await check("hints follow the chosen language and the choice is saved", async ()
   await page.getByRole("button", { name: "Translate" }).click();
   await page.locator(".bubble .muted").filter({ hasText: /[а-яё]/i }).first().waitFor();
   await page.screenshot({ path: path.join(shots, "translation.png"), fullPage: true });
-  await page.goto(`${BASE}/#/progress`);
-  await page.getByLabel("Language for hints and translations").selectOption("none");
+  await page.getByRole("button", { name: "Hints" }).click();
+  await page.locator(".tips .gloss-inline").first().waitFor(); // key terms with a translation
 });
 
 await check("no errors in the browser console", async () => {

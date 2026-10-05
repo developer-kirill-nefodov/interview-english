@@ -1,3 +1,4 @@
+import { DICT } from "../i18n/dict";
 /**
  * Hint languages. The app itself is in English; hints, translations and short
  * explanations can be shown in the learner's own language.
@@ -21,11 +22,16 @@ export function t(tr: Tr | undefined, lang: HintLang): string | undefined {
   return tr && lang !== "none" ? tr[lang] : undefined;
 }
 
-/** First supported language from the browser settings, else English only. */
+/** Translation of an English UI or learning text, if there is one. */
+export function tx(en: string, lang: HintLang): string | undefined {
+  return t(DICT[en], lang);
+}
+
+/** First supported language from the browser settings, else Russian (the app is made for Russian speakers). */
 export function detectHintLang(langs: readonly string[] = typeof navigator !== "undefined" ? (navigator.languages ?? []) : []): HintLang {
   for (const l of langs) {
     const code = l.slice(0, 2).toLowerCase();
     if ((LANGS as string[]).includes(code)) return code as Lang;
   }
-  return "none";
+  return "ru";
 }

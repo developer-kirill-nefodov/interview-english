@@ -260,10 +260,10 @@ describe("approach and final scoring", () => {
 });
 
 describe("hint languages", () => {
-  it("picks the first supported browser language, else English only", () => {
+  it("picks the first supported browser language, else Russian", () => {
     expect(detectHintLang(["en-US", "uk-UA", "ru"])).toBe("uk");
     expect(detectHintLang(["ru-RU"])).toBe("ru");
-    expect(detectHintLang(["en-GB", "ro"])).toBe("none");
+    expect(detectHintLang(["en-GB", "ro"])).toBe("ru"); // made for Russian speakers; switchable
   });
 
   it("shows translations only for the chosen language", () => {

@@ -4,6 +4,7 @@ import { COMPANIES, FORMATS, SKILL_LABELS, STAGES, level, weekDays, type Skill }
 import { dateKey, deckStats } from "../lib/srs";
 import { useStore } from "../lib/store";
 import { Bar, Card, HintLangPicker, Ring } from "../components";
+import { t, tx } from "../lib/i18n";
 import { WEEKLY_GOAL, makePlan, type Plan } from "../mission/Mission";
 
 function greeting() {
@@ -37,6 +38,7 @@ export function Today({ onStart, ai }: { onStart: (p: Plan) => void; ai: boolean
             <Building2 size={16} />
             <span className="small">
               {company} · stage {state.career.stage + 1} of {STAGES.length}: {stage.title}
+              {t(stage.tr, state.hintLang) && ` (${t(stage.tr, state.hintLang)})`}
             </span>
           </div>
           <div className="stage-track">
@@ -73,6 +75,9 @@ export function Today({ onStart, ai }: { onStart: (p: Plan) => void; ai: boolean
               <p>
                 {stage.missions > 1 ? `Mission ${state.career.done + 1} of ${stage.missions} in this stage. ` : "The final round. "}
                 {FORMATS[plan.format].blurb}
+                {tx(FORMATS[plan.format].blurb, state.hintLang) && (
+                  <span className="gloss-hero">{tx(FORMATS[plan.format].blurb, state.hintLang)}</span>
+                )}
               </p>
               <div className="chips">
                 {plan.cards.length > 0 && (
