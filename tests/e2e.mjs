@@ -377,6 +377,26 @@ for (const [name, opts] of [
   });
 }
 
+await check("hints follow the chosen language and the choice is saved", async () => {
+  await page.goto(`${BASE}/#/phrases`);
+  const picker = page.getByLabel("Language for hints and translations");
+  assert((await picker.inputValue()) === "none", "an English browser starts with English only");
+  assert(!(await page.getByText("Хороший вопрос").count()), "no Russian before choosing it");
+  await picker.selectOption("uk");
+  await page.getByText("Гарне питання. Дайте секунду подумати.").waitFor();
+  await picker.selectOption("ru");
+  await page.getByText("Хороший вопрос. Дайте секунду подумать.").waitFor();
+  await page.reload();
+  await page.getByText("Хороший вопрос. Дайте секунду подумать.").waitFor();
+  await page.goto(`${BASE}/#/interview`);
+  await page.getByRole("button", { name: "Start interview" }).click();
+  await page.getByRole("button", { name: "Translate" }).click();
+  await page.locator(".bubble .muted").filter({ hasText: /[а-яё]/i }).first().waitFor();
+  await page.screenshot({ path: path.join(shots, "translation.png"), fullPage: true });
+  await page.goto(`${BASE}/#/progress`);
+  await page.getByLabel("Language for hints and translations").selectOption("none");
+});
+
 await check("no errors in the browser console", async () => {
   assert(errors.length === 0, errors.slice(0, 3).join(" | "));
 });

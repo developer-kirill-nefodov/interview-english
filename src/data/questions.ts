@@ -1,3 +1,4 @@
+import type { Tr } from "../lib/i18n";
 export type Category = "behavioral" | "frontend" | "backend" | "cs" | "design";
 
 export interface Question {
@@ -5,7 +6,7 @@ export interface Question {
   category: Category;
   level: "junior" | "middle" | "senior";
   text: string;
-  ru: string;
+  tr: Tr;
   /** What the interviewer is really checking. */
   tips: string[];
   /** Terms a good answer usually mentions; used for offline feedback. */
@@ -30,7 +31,7 @@ export const QUESTIONS: Question[] = [
     category: "behavioral",
     level: "junior",
     text: "Tell me about yourself.",
-    ru: "Расскажите о себе.",
+    tr: { ru: "Расскажите о себе.", uk: "Розкажіть про себе." },
     tips: [
       "Keep it to 1–2 minutes: present → past → future.",
       "Focus on work, not your biography.",
@@ -52,7 +53,10 @@ export const QUESTIONS: Question[] = [
     category: "behavioral",
     level: "junior",
     text: "Tell me about a difficult technical problem you solved.",
-    ru: "Расскажите о сложной технической проблеме, которую вы решили.",
+    tr: {
+      ru: "Расскажите о сложной технической проблеме, которую вы решили.",
+      uk: "Розкажіть про складну технічну проблему, яку ви розв'язали.",
+    },
     tips: [
       "Use STAR: Situation, Task, Action, Result.",
       "Spend most of the time on Action — what YOU did.",
@@ -75,12 +79,11 @@ export const QUESTIONS: Question[] = [
     category: "behavioral",
     level: "middle",
     text: "Describe a time you disagreed with a teammate. How did you handle it?",
-    ru: "Опишите случай, когда вы не согласились с коллегой. Как вы поступили?",
-    tips: [
-      "Show you stay respectful and focus on data, not ego.",
-      "Show you can disagree and commit.",
-      "Don't blame the other person.",
-    ],
+    tr: {
+      ru: "Опишите случай, когда вы не согласились с коллегой. Как вы поступили?",
+      uk: "Опишіть випадок, коли ви не погодилися з колегою. Як ви вчинили?",
+    },
+    tips: ["Show you stay respectful and focus on data, not ego.", "Show you can disagree and commit.", "Don't blame the other person."],
     keyTerms: ["opinions", "concerns", "prototype", "compare", "agreed", "team"],
     phrases: [
       "We had different opinions about …",
@@ -97,7 +100,7 @@ export const QUESTIONS: Question[] = [
     category: "behavioral",
     level: "middle",
     text: "Tell me about a mistake you made at work and what you learned.",
-    ru: "Расскажите об ошибке на работе и чему она вас научила.",
+    tr: { ru: "Расскажите об ошибке на работе и чему она вас научила.", uk: "Розкажіть про помилку на роботі і чого вона вас навчила." },
     tips: [
       "Pick a real but not catastrophic mistake.",
       "Own it: say “I”, not “we”.",
@@ -118,7 +121,7 @@ export const QUESTIONS: Question[] = [
     category: "behavioral",
     level: "junior",
     text: "Why do you want to work here?",
-    ru: "Почему вы хотите работать у нас?",
+    tr: { ru: "Почему вы хотите работать у нас?", uk: "Чому ви хочете працювати в нас?" },
     tips: [
       "Connect the company's product or mission with your experience.",
       "Be specific — mention something you actually researched.",
@@ -139,7 +142,7 @@ export const QUESTIONS: Question[] = [
     category: "behavioral",
     level: "junior",
     text: "Do you have any questions for us?",
-    ru: "Есть ли у вас вопросы к нам?",
+    tr: { ru: "Есть ли у вас вопросы к нам?", uk: "Чи є у вас питання до нас?" },
     tips: [
       "Always say yes and ask 2–3 questions.",
       "Ask about the team, process and challenges.",
@@ -162,7 +165,7 @@ export const QUESTIONS: Question[] = [
     category: "frontend",
     level: "junior",
     text: "How does React decide when to re-render a component?",
-    ru: "Как React решает, когда перерисовать компонент?",
+    tr: { ru: "Как React решает, когда перерисовать компонент?", uk: "Як React вирішує, коли перемалювати компонент?" },
     tips: [
       "Mention state change, parent re-render, and context change.",
       "Explain reconciliation briefly.",
@@ -183,7 +186,7 @@ export const QUESTIONS: Question[] = [
     category: "frontend",
     level: "middle",
     text: "Can you explain the JavaScript event loop?",
-    ru: "Объясните, как работает event loop в JavaScript.",
+    tr: { ru: "Объясните, как работает event loop в JavaScript.", uk: "Поясніть, як працює event loop у JavaScript." },
     tips: [
       "Call stack, task queue (macrotasks), microtask queue.",
       "Microtasks (promises) run before the next macrotask (setTimeout).",
@@ -204,7 +207,10 @@ export const QUESTIONS: Question[] = [
     category: "frontend",
     level: "middle",
     text: "A page in our app loads slowly. How would you investigate it?",
-    ru: "Страница в приложении медленно загружается. Как будете искать причину?",
+    tr: {
+      ru: "Страница в приложении медленно загружается. Как будете искать причину?",
+      uk: "Сторінка в застосунку повільно завантажується. Як шукатимете причину?",
+    },
     tips: [
       "Show a structured approach: measure → find bottleneck → fix → verify.",
       "Mention concrete tools: Lighthouse, DevTools Performance and Network tabs.",
@@ -225,17 +231,10 @@ export const QUESTIONS: Question[] = [
     category: "frontend",
     level: "junior",
     text: "What's the difference between Flexbox and CSS Grid?",
-    ru: "В чём разница между Flexbox и CSS Grid?",
-    tips: [
-      "Flexbox is one-dimensional, Grid is two-dimensional.",
-      "Give a practical example of when you'd use each.",
-    ],
+    tr: { ru: "В чём разница между Flexbox и CSS Grid?", uk: "У чому різниця між Flexbox і CSS Grid?" },
+    tips: ["Flexbox is one-dimensional, Grid is two-dimensional.", "Give a practical example of when you'd use each."],
     keyTerms: ["one-dimensional", "two-dimensional", "rows", "columns", "layout", "align"],
-    phrases: [
-      "The main difference is that …",
-      "I usually use … for …, and … for …",
-      "For example, …",
-    ],
+    phrases: ["The main difference is that …", "I usually use … for …, and … for …", "For example, …"],
     sample:
       "The main difference is that Flexbox is one-dimensional — it lays items out in a row or a column — while Grid is two-dimensional and controls rows and columns at the same time. I usually use Flexbox for components, like a navbar or aligning a button and an icon, and Grid for page layouts or card galleries where items need to line up in both directions. They work well together.",
   },
@@ -244,11 +243,11 @@ export const QUESTIONS: Question[] = [
     category: "frontend",
     level: "senior",
     text: "How do you decide where state should live in a frontend app?",
-    ru: "Как вы решаете, где хранить состояние во фронтенд-приложении?",
-    tips: [
-      "Distinguish server state, global UI state, local state, URL state.",
-      "Show trade-offs, not a single “right” library.",
-    ],
+    tr: {
+      ru: "Как вы решаете, где хранить состояние во фронтенд-приложении?",
+      uk: "Як ви вирішуєте, де зберігати стан у фронтенд-застосунку?",
+    },
+    tips: ["Distinguish server state, global UI state, local state, URL state.", "Show trade-offs, not a single “right” library."],
     keyTerms: ["local", "server state", "global", "URL", "cache", "close"],
     phrases: [
       "It depends on the type of state.",
@@ -265,17 +264,10 @@ export const QUESTIONS: Question[] = [
     category: "backend",
     level: "junior",
     text: "What makes a REST API well designed?",
-    ru: "Что делает REST API хорошо спроектированным?",
-    tips: [
-      "Resources as nouns, HTTP methods as verbs, correct status codes.",
-      "Mention versioning, pagination, consistent errors.",
-    ],
+    tr: { ru: "Что делает REST API хорошо спроектированным?", uk: "Що робить REST API добре спроєктованим?" },
+    tips: ["Resources as nouns, HTTP methods as verbs, correct status codes.", "Mention versioning, pagination, consistent errors."],
     keyTerms: ["resource", "HTTP method", "status code", "pagination", "version", "idempotent"],
-    phrases: [
-      "A few things come to mind.",
-      "First, … Second, … And finally, …",
-      "For example, instead of … I would use …",
-    ],
+    phrases: ["A few things come to mind.", "First, … Second, … And finally, …", "For example, instead of … I would use …"],
     sample:
       "A few things come to mind. First, URLs should describe resources with nouns, like /users/42/orders, and the HTTP method describes the action: GET to read, POST to create, PUT or PATCH to update, DELETE to remove. Second, it should return correct status codes — 201 for created, 404 for not found, 400 for validation errors — and errors should have a consistent format. Third, large lists need pagination and filtering. And finally, I'd version the API and make write operations idempotent where possible, so clients can safely retry.",
   },
@@ -284,7 +276,10 @@ export const QUESTIONS: Question[] = [
     category: "backend",
     level: "middle",
     text: "How do database indexes work, and when would you add one?",
-    ru: "Как работают индексы в базе данных и когда их стоит добавлять?",
+    tr: {
+      ru: "Как работают индексы в базе данных и когда их стоит добавлять?",
+      uk: "Як працюють індекси в базі даних і коли їх варто додавати?",
+    },
     tips: [
       "B-tree, faster reads, slower writes, extra storage.",
       "Mention EXPLAIN / query plans.",
@@ -305,7 +300,10 @@ export const QUESTIONS: Question[] = [
     category: "backend",
     level: "middle",
     text: "What's the difference between authentication and authorization? How would you implement them?",
-    ru: "В чём разница между аутентификацией и авторизацией? Как бы вы их реализовали?",
+    tr: {
+      ru: "В чём разница между аутентификацией и авторизацией? Как бы вы их реализовали?",
+      uk: "У чому різниця між автентифікацією та авторизацією? Як би ви їх реалізували?",
+    },
     tips: [
       "Authentication = who you are; authorization = what you can do.",
       "Mention sessions vs JWT and their trade-offs.",
@@ -325,7 +323,7 @@ export const QUESTIONS: Question[] = [
     category: "backend",
     level: "senior",
     text: "Our API is getting too much traffic. What would you do?",
-    ru: "API не справляется с нагрузкой. Что будете делать?",
+    tr: { ru: "API не справляется с нагрузкой. Что будете делать?", uk: "API не витримує навантаження. Що робитимете?" },
     tips: [
       "Ask clarifying questions first: reads or writes? what's the bottleneck?",
       "Caching, horizontal scaling, load balancer, DB read replicas, rate limiting, queues.",
@@ -346,17 +344,10 @@ export const QUESTIONS: Question[] = [
     category: "cs",
     level: "junior",
     text: "What is Big O notation, and why does it matter?",
-    ru: "Что такое нотация Big O и почему она важна?",
-    tips: [
-      "It describes how time or memory grows with input size.",
-      "Give examples: O(1), O(n), O(log n), O(n²).",
-    ],
+    tr: { ru: "Что такое нотация Big O и почему она важна?", uk: "Що таке нотація Big O і чому вона важлива?" },
+    tips: ["It describes how time or memory grows with input size.", "Give examples: O(1), O(n), O(log n), O(n²)."],
     keyTerms: ["input", "grows", "worst case", "O(n)", "O(log n)", "constant"],
-    phrases: [
-      "Big O describes how …",
-      "For example, …",
-      "In practice, it matters because …",
-    ],
+    phrases: ["Big O describes how …", "For example, …", "In practice, it matters because …"],
     sample:
       "Big O describes how the running time or memory of an algorithm grows as the input gets bigger, usually in the worst case. For example, accessing an array element by index is O(1), constant time; a simple loop over the array is O(n); binary search is O(log n); and two nested loops are O(n squared). In practice, it matters because an O(n squared) solution may be fine for a hundred items but completely unusable for a million.",
   },
@@ -365,7 +356,7 @@ export const QUESTIONS: Question[] = [
     category: "cs",
     level: "junior",
     text: "How does a hash map work?",
-    ru: "Как работает хеш-таблица?",
+    tr: { ru: "Как работает хеш-таблица?", uk: "Як працює хеш-таблиця?" },
     tips: ["Hash function → bucket index.", "Collisions and how they are handled.", "Average O(1), worst O(n)."],
     keyTerms: ["hash function", "bucket", "collision", "O(1)", "resize", "key"],
     phrases: ["Under the hood, …", "The tricky part is …", "On average, …, but in the worst case …"],
@@ -377,7 +368,7 @@ export const QUESTIONS: Question[] = [
     category: "cs",
     level: "middle",
     text: "What's the difference between a process and a thread?",
-    ru: "В чём разница между процессом и потоком?",
+    tr: { ru: "В чём разница между процессом и потоком?", uk: "У чому різниця між процесом і потоком?" },
     tips: ["Memory isolation vs shared memory.", "Cost of creation and context switching.", "Race conditions with threads."],
     keyTerms: ["memory", "isolated", "share", "context switch", "race condition", "lighter"],
     phrases: ["The main difference is …", "Because of that, …", "A practical example is …"],
@@ -390,7 +381,10 @@ export const QUESTIONS: Question[] = [
     category: "design",
     level: "middle",
     text: "How would you design a URL shortener like bit.ly?",
-    ru: "Как бы вы спроектировали сокращатель ссылок вроде bit.ly?",
+    tr: {
+      ru: "Как бы вы спроектировали сокращатель ссылок вроде bit.ly?",
+      uk: "Як би ви спроєктували скорочувач посилань на кшталт bit.ly?",
+    },
     tips: [
       "Start with requirements and rough numbers.",
       "API, data model, short-code generation, redirects, caching.",
@@ -412,7 +406,7 @@ export const QUESTIONS: Question[] = [
     category: "design",
     level: "senior",
     text: "How would you design a simple chat application?",
-    ru: "Как бы вы спроектировали простое приложение-чат?",
+    tr: { ru: "Как бы вы спроектировали простое приложение-чат?", uk: "Як би ви спроєктували простий застосунок-чат?" },
     tips: [
       "Real-time delivery: WebSockets.",
       "Message storage, online status, delivery when offline.",

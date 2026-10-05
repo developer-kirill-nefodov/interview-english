@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Mic, Square, Volume2 } from "lucide-react";
+import { Languages, Mic, Square, Volume2 } from "lucide-react";
 import { speak, speechRecognitionSupported, useDictation } from "./lib/speech";
 import type { Correction } from "./lib/api";
 import type { OfflineReview } from "./lib/offlineReview";
+import { HINT_LANGS, t, type HintLang } from "./lib/i18n";
+import { getState, setHintLang, useStore } from "./lib/store";
 
 export function useStopwatch(running: boolean) {
   const [sec, setSec] = useState(0);
@@ -136,8 +138,12 @@ export function Corrections({ items }: { items: Correction[] }) {
   );
 }
 
-export const offlineToCorrections = (r: OfflineReview): Correction[] =>
-  r.corrections.map((c) => ({ original: c.found, corrected: c.better, explanation: c.why }));
+/** Rule-based corrections in the shared shape; the hint in the learner's language goes in brackets. */
+export const offlineToCorrections = (r: OfflineReview, lang: HintLang = getState().hintLang): Correction[] =>
+  r.corrections.map((c) => {
+    const hint = t(c.tr, lang);
+    return { original: c.found, corrected: c.better, explanation: hint ? `${c.why} (${hint})` : c.why };
+  });
 
 export function OfflineFeedback({ review }: { review: OfflineReview }) {
   return (
@@ -281,4 +287,22 @@ export function useCountdown(seconds: number, running: boolean, onEnd: () => voi
     if (running && left === 0) endRef.current();
   }, [left, running]);
   return [left, setLeft] as const;
+}
+
+/** Choose the language for hints and translations. */
+export function HintLangPicker({ compact }: { compact?: boolean }) {
+  const lang = useStore().hintLang;
+  return (
+    <label className={`lang-picker ${compact ? "compact" : ""}`}>
+      <Languages size={15} aria-hidden />
+      {!compact && <span>Hints in</span>}
+      <select value={lang} onChange={(e) => setHintLang(e.target.value as HintLang)} aria-label="Language for hints and translations">
+        {(Object.keys(HINT_LANGS) as HintLang[]).map((l) => (
+          <option key={l} value={l}>
+            {HINT_LANGS[l].native}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 }

@@ -6,6 +6,7 @@ import type { Career, Format, MissionLog, Skill } from "./mission";
 import { SKILL_XP, advanceCareer, snoozeUntil } from "./mission";
 import { type Card, dateKey, grade, newCard } from "./srs";
 import { addHistory } from "./storage";
+import { detectHintLang, t, type HintLang } from "./i18n";
 
 export interface Story {
   id: string;
@@ -28,14 +29,17 @@ export interface State {
   skills: Record<Skill, number>;
   career: Career;
   solved: string[];
+  /** Language for hints and translations. */
+  hintLang: HintLang;
 }
 
 const KEY = "interview-english:v2";
 
+const phraseId = (en: string) => `phrase:${en}`;
+
 export function seedCards(today: string): Card[] {
-  const phrases = PHRASEBOOK.flatMap((g) =>
-    g.phrases.map((p) => newCard("phrase", `${g.ru}: «${p.ru}»`, p.en, today, g.title)),
-  );
+  // The front is shown in the learner's language at review time (see cardFront).
+  const phrases = PHRASEBOOK.flatMap((g) => g.phrases.map((p) => newCard("phrase", g.title, p.en, today, g.title, phraseId(p.en))));
   const patterns = PATTERNS.map((p) =>
     newCard("pattern", p.problem, `${p.name}. ${p.answer} ${p.complexity}.`, today, undefined, `pattern:${p.id}`),
   );
@@ -53,7 +57,22 @@ export function initialState(today = dateKey()): State {
     skills: { fluency: 0, clarity: 0, algorithms: 0, vocabulary: 0 },
     career: { company: 0, stage: 0, done: 0, offers: 0 },
     solved: [],
+    hintLang: detectHintLang(),
   };
+}
+
+/** What a card asks: phrase cards show the phrase in the hint language, or a cue in English. */
+export function cardFront(card: Card, lang: HintLang): string {
+  if (card.deck !== "phrase") return card.front;
+  for (const g of PHRASEBOOK)
+    for (const p of g.phrases)
+      if (p.en === card.back) {
+        const tr = t(p.tr, lang);
+        if (tr) return `${t(g.tr, lang)}: «${tr}»`;
+        const words = p.en.split(" ");
+        return `${g.title}: «${words.slice(0, 2).join(" ")}${words.length > 2 ? " …" : ""}»`;
+      }
+  return card.front;
 }
 
 function load(): State {
@@ -64,6 +83,10 @@ function load(): State {
       if (s.version === 2) {
         // Cards added to the app later reach people who already have saved progress.
         const fresh = initialState();
+        // Phrase cards used to be keyed by their Russian text; key them by the English phrase.
+        s.cards = s.cards.map((c) =>
+          c.deck === "phrase" && c.id !== phraseId(c.back) ? { ...c, id: phraseId(c.back), front: c.note ?? c.front } : c,
+        );
         const ids = new Set(s.cards.map((c) => c.id));
         return { ...fresh, ...s, cards: [...s.cards, ...fresh.cards.filter((c) => !ids.has(c.id))] };
       }
@@ -164,9 +187,7 @@ export function markSolved(problemId: string) {
 export function completeMission(log: Omit<MissionLog, "date">, opts: { hired?: boolean; career?: boolean } = {}) {
   const today = dateKey();
   const before = state.career;
-  const result = opts.career === false
-    ? { career: before, stagePassed: false, newCompany: false }
-    : advanceCareer(before, opts.hired);
+  const result = opts.career === false ? { career: before, stagePassed: false, newCompany: false } : advanceCareer(before, opts.hired);
   setState((s) => {
     const skills = { ...s.skills };
     for (const [k, v] of Object.entries(SKILL_XP[log.format])) skills[k as Skill] += v ?? 0;
@@ -186,4 +207,8 @@ export function completeMission(log: Omit<MissionLog, "date">, opts: { hired?: b
     scores: {},
   });
   return { ...result, before };
+}
+
+export function setHintLang(hintLang: HintLang) {
+  setState((s) => ({ ...s, hintLang }));
 }

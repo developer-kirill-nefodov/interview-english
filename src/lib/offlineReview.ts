@@ -1,9 +1,12 @@
+import type { Tr } from "./i18n";
 // Rule-based feedback that works without any API key.
 
 export interface OfflineCorrection {
   found: string;
   better: string;
   why: string;
+  /** A short hint in the learner's language. */
+  tr?: Tr;
 }
 
 export interface OfflineReview {
@@ -20,13 +23,22 @@ export interface OfflineReview {
 const FILLERS = ["um", "uh", "erm", "you know", "actually", "kind of", "sort of", "i mean"];
 
 // Typical mistakes of Russian-speaking developers.
-const RULES: { re: RegExp; better: string; why: string }[] = [
-  { re: /\bi am agree\b/gi, better: "I agree", why: "“agree” is a verb, no “am” (не «я есть согласен»)." },
+const RULES: { re: RegExp; better: string; why: string; tr?: Tr }[] = [
+  {
+    re: /\bi am agree\b/gi,
+    better: "I agree",
+    why: "“agree” is a verb, no “am”.",
+    tr: { ru: "не «я есть согласен»", uk: "не «я є згоден»" },
+  },
   { re: /\bdepends? of\b/gi, better: "depends on", why: "The preposition is “on”." },
   { re: /\bexplain me\b/gi, better: "explain to me", why: "explain something TO someone." },
   { re: /\bdiscuss about\b/gi, better: "discuss", why: "“discuss” takes a direct object: discuss the problem." },
   { re: /\bsay me\b/gi, better: "tell me", why: "tell someone / say something." },
-  { re: /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten) years experience\b/gi, better: "$1 years of experience", why: "You need “of”: three years of experience." },
+  {
+    re: /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten) years experience\b/gi,
+    better: "$1 years of experience",
+    why: "You need “of”: three years of experience.",
+  },
   { re: /\bon the other side\b(?! of)/gi, better: "on the other hand", why: "Fixed expression for contrasting ideas." },
   { re: /\bin the internet\b(?! (?:age|era|of things))/gi, better: "on the internet", why: "We say “on the internet”." },
   { re: /\binformations\b/gi, better: "information", why: "Uncountable noun, no plural." },
@@ -35,19 +47,54 @@ const RULES: { re: RegExp; better: string; why: string }[] = [
   { re: /\bsoftwares\b/gi, better: "software", why: "Uncountable noun." },
   { re: /\bmore (better|faster|easier|bigger)\b/gi, better: "$1", why: "Don't combine “more” with -er comparatives." },
   { re: /\baccording to me\b/gi, better: "in my opinion", why: "“According to” is used for other sources." },
-  { re: /\bi work (here |there |at \w+ )?since\b/gi, better: "I've been working … since", why: "With “since/for” use Present Perfect (работаю с … → have worked since)." },
-  { re: /\bi am working here (since|for (?:\d+|a|two|three|several) (?:years?|months?))\b/gi, better: "I have been working here $1", why: "Present Perfect Continuous for duration up to now." },
-  { re: /\bdid (?:(?:you|we|they|he|she|it|i)\s+)?(?!need|succeed|exceed|proceed|embed|feed|speed|seed|shed|bleed|breed|heed)(\w+ed)\b/gi, better: "did + base verb", why: "After “did”, use the base form: did you try, not did you tried." },
+  {
+    re: /\bi work (here |there |at \w+ )?since\b/gi,
+    better: "I've been working … since",
+    why: "With “since/for” use Present Perfect.",
+    tr: { ru: "работаю с … → have been working since", uk: "працюю з … → have been working since" },
+  },
+  {
+    re: /\bi am working here (since|for (?:\d+|a|two|three|several) (?:years?|months?))\b/gi,
+    better: "I have been working here $1",
+    why: "Present Perfect Continuous for duration up to now.",
+  },
+  {
+    re: /\bdid (?:(?:you|we|they|he|she|it|i)\s+)?(?!need|succeed|exceed|proceed|embed|feed|speed|seed|shed|bleed|breed|heed)(\w+ed)\b/gi,
+    better: "did + base verb",
+    why: "After “did”, use the base form: did you try, not did you tried.",
+  },
   { re: /\bhow it works\?/gi, better: "how does it work?", why: "Questions need inversion (in indirect speech “how it works” is fine)." },
   { re: /\bmake a research\b/gi, better: "do research", why: "“research” is uncountable and goes with “do”." },
   { re: /\bvery (unique|perfect|essential)\b/gi, better: "$1", why: "These adjectives are already absolute." },
   { re: /\bit is depend\b/gi, better: "it depends", why: "Present simple: it depends." },
-  { re: /\b(we|they|you) was\b/gi, better: "$1 were", why: "were with we / they / you (мы были → we were)." },
-  { re: /\b(he|she|it) (have|do|don't|were)\b(?! to\b)/gi, better: "$1 has / does / doesn't / was", why: "he / she / it takes has, does, doesn't, was." },
+  {
+    re: /\b(we|they|you) was\b/gi,
+    better: "$1 were",
+    why: "were with we / they / you.",
+    tr: { ru: "мы были → we were", uk: "ми були → we were" },
+  },
+  {
+    re: /\b(he|she|it) (have|do|don't|were)\b(?! to\b)/gi,
+    better: "$1 has / does / doesn't / was",
+    why: "he / she / it takes has, does, doesn't, was.",
+  },
   { re: /\b(I|we|they|you) has\b/gi, better: "$1 have", why: "has is only for he / she / it." },
-  { re: /\b(didn't|did not|doesn't|does not|don't|do not|can't|cannot|couldn't|won't|should|must) (\w+ed|knew|went|saw|took|made|found|gave|came|wrote|got|thought)\b(?<!\b(?:need|feed|seed|speed|embed|exceed|succeed|proceed))/gi, better: "$1 + base verb", why: "After did / does / can / should and similar, use the base verb: didn't know, not didn't knew." },
-  { re: /\bI founded (a|the|that|it|this|out)\b/gi, better: "I found $1", why: "found = нашёл (find → found); founded = основал компанию." },
-  { re: /\b(?:a|the|no) possibility to\b/gi, better: "possibility of …ing / chance to", why: "“possibility” usually takes “of + -ing”: the possibility of losing data." },
+  {
+    re: /\b(didn't|did not|doesn't|does not|don't|do not|can't|cannot|couldn't|won't|should|must) (\w+ed|knew|went|saw|took|made|found|gave|came|wrote|got|thought)\b(?<!\b(?:need|feed|seed|speed|embed|exceed|succeed|proceed))/gi,
+    better: "$1 + base verb",
+    why: "After did / does / can / should and similar, use the base verb: didn't know, not didn't knew.",
+  },
+  {
+    re: /\bI founded (a|the|that|it|this|out)\b/gi,
+    better: "I found $1",
+    why: "found is the past of find; founded means started a company.",
+    tr: { ru: "found = нашёл; founded = основал компанию", uk: "found = знайшов; founded = заснував компанію" },
+  },
+  {
+    re: /\b(?:a|the|no) possibility to\b/gi,
+    better: "possibility of …ing / chance to",
+    why: "“possibility” usually takes “of + -ing”: the possibility of losing data.",
+  },
 ];
 
 function countPhrase(text: string, phrase: string) {
@@ -72,7 +119,7 @@ export function reviewSpeech(text: string, durationSec: number | null, keyTerms:
   for (const rule of RULES) {
     for (const m of text.matchAll(rule.re)) {
       const better = rule.better.includes("$1") ? m[0].replace(rule.re, rule.better) : rule.better;
-      found.push({ found: m[0], better, why: rule.why, at: m.index ?? 0 });
+      found.push({ found: m[0], better, why: rule.why, tr: rule.tr, at: m.index ?? 0 });
     }
   }
   // In the order they appear in the answer.
@@ -83,7 +130,8 @@ export function reviewSpeech(text: string, durationSec: number | null, keyTerms:
   if (hasCyrillic) notes.push("Some words are in Russian. Try to describe them in English, even with simpler words.");
   if (words > 0 && words < 40) notes.push("The answer is quite short. Aim for at least 60–150 words (about 1 minute).");
   if (words > 350) notes.push("The answer is long. Interviewers prefer 1–2 minutes; keep the main points and stop.");
-  if (wpm !== null && wpm < 90) notes.push(`Your pace was ${wpm} words/min. That's slow; aim for 110–150. Prepare a few linking phrases to avoid pauses.`);
+  if (wpm !== null && wpm < 90)
+    notes.push(`Your pace was ${wpm} words/min. That's slow; aim for 110–150. Prepare a few linking phrases to avoid pauses.`);
   if (wpm !== null && wpm > 180) notes.push(`Your pace was ${wpm} words/min. Slow down a little so the interviewer can follow.`);
   const fillerTotal = fillers.reduce((s, f) => s + f.count, 0);
   if (words > 0 && fillerTotal / words > 0.04)
@@ -127,8 +175,7 @@ export function compareSpoken(target: string, said: string) {
   const tn = t.map(norm);
   const dp = Array.from({ length: tn.length + 1 }, () => new Array<number>(s.length + 1).fill(0));
   for (let i = tn.length - 1; i >= 0; i--)
-    for (let j = s.length - 1; j >= 0; j--)
-      dp[i][j] = tn[i] === s[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    for (let j = s.length - 1; j >= 0; j--) dp[i][j] = tn[i] === s[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
   const words: { word: string; hit: boolean }[] = [];
   let i = 0;
   let j = 0;

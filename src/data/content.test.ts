@@ -3,23 +3,34 @@ import { PROBLEMS } from "./problems";
 import { QUESTIONS } from "./questions";
 import { PATTERNS, STORY_PROMPTS } from "./patterns";
 import { PHRASEBOOK } from "./phrases";
-import { STAGES } from "../lib/mission";
+import { FORMATS, STAGES } from "../lib/mission";
+import { LANGS, type Tr } from "../lib/i18n";
 import { reviewSpeech } from "../lib/offlineReview";
 
 /** Reference solutions: if a problem's expected values are wrong, these fail. */
 export const SOLUTIONS: Record<string, string> = {
-  "two-sum": "function twoSum(nums, target) { const seen = new Map(); for (let i = 0; i < nums.length; i++) { if (seen.has(target - nums[i])) return [seen.get(target - nums[i]), i]; seen.set(nums[i], i); } }",
-  "valid-parentheses": "function isValid(s) { const st = []; const m = { ')': '(', ']': '[', '}': '{' }; for (const c of s) { if ('([{'.includes(c)) st.push(c); else if (st.pop() !== m[c]) return false; } return st.length === 0; }",
+  "two-sum":
+    "function twoSum(nums, target) { const seen = new Map(); for (let i = 0; i < nums.length; i++) { if (seen.has(target - nums[i])) return [seen.get(target - nums[i]), i]; seen.set(nums[i], i); } }",
+  "valid-parentheses":
+    "function isValid(s) { const st = []; const m = { ')': '(', ']': '[', '}': '{' }; for (const c of s) { if ('([{'.includes(c)) st.push(c); else if (st.pop() !== m[c]) return false; } return st.length === 0; }",
   palindrome: "function isPalindrome(s) { const t = s.toLowerCase().replace(/[^a-z0-9]/g, ''); return t === [...t].reverse().join(''); }",
-  "group-anagrams": "function groupAnagrams(words) { const m = new Map(); for (const w of words) { const k = [...w].sort().join(''); if (!m.has(k)) m.set(k, []); m.get(k).push(w); } return [...m.values()].map((g) => g.sort()); }",
-  "merge-intervals": "function merge(intervals) { const a = [...intervals].sort((x, y) => x[0] - y[0]); const out = []; for (const [s, e] of a) { if (out.length && s <= out[out.length - 1][1]) out[out.length - 1][1] = Math.max(out[out.length - 1][1], e); else out.push([s, e]); } return out; }",
-  "max-subarray": "function maxSubArray(nums) { let cur = nums[0], best = nums[0]; for (let i = 1; i < nums.length; i++) { cur = Math.max(nums[i], cur + nums[i]); best = Math.max(best, cur); } return best; }",
+  "group-anagrams":
+    "function groupAnagrams(words) { const m = new Map(); for (const w of words) { const k = [...w].sort().join(''); if (!m.has(k)) m.set(k, []); m.get(k).push(w); } return [...m.values()].map((g) => g.sort()); }",
+  "merge-intervals":
+    "function merge(intervals) { const a = [...intervals].sort((x, y) => x[0] - y[0]); const out = []; for (const [s, e] of a) { if (out.length && s <= out[out.length - 1][1]) out[out.length - 1][1] = Math.max(out[out.length - 1][1], e); else out.push([s, e]); } return out; }",
+  "max-subarray":
+    "function maxSubArray(nums) { let cur = nums[0], best = nums[0]; for (let i = 1; i < nums.length; i++) { cur = Math.max(nums[i], cur + nums[i]); best = Math.max(best, cur); } return best; }",
 };
 
 // Same comparison as the in-browser runner (src/lib/runner.ts).
 const canon = (v: unknown, unordered?: boolean) => {
   if (!unordered || !Array.isArray(v)) return JSON.stringify(v);
-  return JSON.stringify(v.map((x) => (Array.isArray(x) ? [...x].sort() : x)).map((x) => JSON.stringify(x)).sort());
+  return JSON.stringify(
+    v
+      .map((x) => (Array.isArray(x) ? [...x].sort() : x))
+      .map((x) => JSON.stringify(x))
+      .sort(),
+  );
 };
 
 describe("coding problems", () => {
@@ -67,8 +78,17 @@ describe("content", () => {
     }
   });
 
-  it("phrases and stories have Russian hints", () => {
-    for (const g of PHRASEBOOK) for (const p of g.phrases) expect(p.ru.length, p.en).toBeGreaterThan(0);
-    for (const s of STORY_PROMPTS) expect(s.ru.length).toBeGreaterThan(0);
+  it("every hint has a translation in every hint language", () => {
+    const texts: [string, Tr][] = [
+      ...QUESTIONS.map((q) => [q.id, q.tr] as [string, Tr]),
+      ...PROBLEMS.map((p) => [p.id, p.tr] as [string, Tr]),
+      ...STORY_PROMPTS.map((p) => [p.id, p.tr] as [string, Tr]),
+      ...STAGES.map((p) => [p.id, p.tr] as [string, Tr]),
+      ...Object.entries(FORMATS).map(([k, f]) => [k, f.tr] as [string, Tr]),
+      ...PHRASEBOOK.flatMap((g) => [[g.title, g.tr] as [string, Tr], ...g.phrases.map((p) => [p.en, p.tr] as [string, Tr])]),
+    ];
+    const missing = texts.flatMap(([id, tr]) => LANGS.filter((l) => !tr?.[l]?.trim()).map((l) => `${id}: ${l}`));
+    expect(missing).toEqual([]);
+    expect(texts.length).toBeGreaterThan(90);
   });
 });

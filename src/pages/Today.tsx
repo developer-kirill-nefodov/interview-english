@@ -3,7 +3,7 @@ import { Building2, Clock, Coffee, Layers, Play, RotateCcw, Sparkles } from "luc
 import { COMPANIES, FORMATS, SKILL_LABELS, STAGES, level, weekDays, type Skill } from "../lib/mission";
 import { dateKey, deckStats } from "../lib/srs";
 import { useStore } from "../lib/store";
-import { Bar, Card, Ring } from "../components";
+import { Bar, Card, HintLangPicker, Ring } from "../components";
 import { WEEKLY_GOAL, makePlan, type Plan } from "../mission/Mission";
 
 function greeting() {
@@ -23,9 +23,12 @@ export function Today({ onStart, ai }: { onStart: (p: Plan) => void; ai: boolean
 
   return (
     <div className="page">
-      <div className="page-head">
-        <span className="eyebrow">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</span>
-        <h1>{greeting()}</h1>
+      <div className="row spread">
+        <div className="page-head">
+          <span className="eyebrow">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</span>
+          <h1>{greeting()}</h1>
+        </div>
+        <HintLangPicker />
       </div>
 
       <section className="hero fade-in">

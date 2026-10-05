@@ -10,6 +10,7 @@ import { runTests, type RunResult } from "../lib/runner";
 import { speak, stopSpeaking } from "../lib/speech";
 import { addHistory } from "../lib/storage";
 import { markSolved, useStore } from "../lib/store";
+import { t } from "../lib/i18n";
 import type { TaskResult } from "../mission/formats";
 import {
   Card,
@@ -30,7 +31,7 @@ export function LiveCoding({ ai }: { ai: boolean }) {
 }
 
 function ProblemList({ onPick }: { onPick: (p: Problem) => void }) {
-  const { solved } = useStore();
+  const { solved, hintLang } = useStore();
   return (
     <div className="page">
       <div className="page-head">
@@ -48,7 +49,7 @@ function ProblemList({ onPick }: { onPick: (p: Problem) => void }) {
               <b>{p.title}</b>
               <span className={`badge ${p.difficulty}`}>{p.difficulty}</span>
             </div>
-            <span className="muted small clamp-2" title={p.ru}>
+            <span className="muted small clamp-2" title={t(p.tr, hintLang)}>
               {p.statement.replace(/`/g, "")}
             </span>
             {solved.includes(p.id) && (
@@ -76,6 +77,7 @@ export function Workspace({
   onExit: () => void;
   onComplete?: (r: TaskResult) => void;
 }) {
+  const { hintLang } = useStore();
   const [code, setCode] = useState(problem.starter);
   const [run, setRun] = useState<RunResult | null>(null);
   const [running, setRunning] = useState(false);
@@ -157,7 +159,7 @@ export function Workspace({
             actions={<SpeakButton text={`${problem.title}. ${problem.statement.replace(/`/g, "")}`} />}
           >
             <p>{problem.statement.split("`").map((part, i) => (i % 2 ? <code key={i}>{part}</code> : part))}</p>
-            <p className="muted small">{problem.ru}</p>
+            {t(problem.tr, hintLang) && <p className="muted small">{t(problem.tr, hintLang)}</p>}
             <pre className="examples">{problem.examples.join("\n")}</pre>
           </Card>
         </div>

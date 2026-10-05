@@ -1,3 +1,4 @@
+import { getState } from "./store";
 export interface Correction {
   original: string;
   corrected: string;
@@ -41,7 +42,8 @@ async function post<T>(url: string, body: unknown): Promise<T> {
   const r = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    // The AI adds short hints in the learner's language, if they chose one.
+    body: JSON.stringify({ ...(body as object), hintLang: getState().hintLang }),
   });
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(data.error ?? `Request failed (${r.status})`);

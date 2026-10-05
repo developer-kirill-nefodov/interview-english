@@ -5,7 +5,9 @@ import { compareSpoken, reviewSpeech, sentences } from "./offlineReview";
 import { topCorrections, compareWithPast } from "../mission/Mission";
 import { approachChecks, offlineScore, verdict } from "../mission/formats";
 import { PATTERNS } from "../data/patterns";
-import { initialState } from "./store";
+import { cardFront, initialState } from "./store";
+import { detectHintLang, t } from "./i18n";
+import { offlineToCorrections } from "../components";
 
 describe("dates", () => {
   it("adds days across month and year boundaries", () => {
@@ -77,7 +79,9 @@ describe("mission planning", () => {
   it("an expired snooze no longer blocks a format", () => {
     const picks = new Set<Format>();
     for (let seed = 0; seed < 50; seed++)
-      picks.add(chooseFormat({ stage: tech, recent: [], snoozed: { blitz: "2026-10-01" }, today, light: false, rng: seededRng(String(seed)) }));
+      picks.add(
+        chooseFormat({ stage: tech, recent: [], snoozed: { blitz: "2026-10-01" }, today, light: false, rng: seededRng(String(seed)) }),
+      );
     expect(picks.has("blitz")).toBe(true);
   });
 
@@ -138,11 +142,7 @@ describe("offline speech review", () => {
   });
 
   it("doesn't flag correct English", () => {
-    const r = reviewSpeech(
-      "I agree. I have three years of experience, and it depends on the team. I have worked here since 2023.",
-      40,
-      [],
-    );
+    const r = reviewSpeech("I agree. I have three years of experience, and it depends on the team. I have worked here since 2023.", 40, []);
     expect(r.corrections).toEqual([]);
   });
 
@@ -233,19 +233,56 @@ describe("approach and final scoring", () => {
 
   it("every model explanation passes its own checklist", () => {
     const failures = Object.fromEntries(
-      PATTERNS.map((p) => [p.id, approachChecks(p, p.explain).filter((c) => !c.ok).map((c) => c.text)]).filter(
-        ([, f]) => f.length,
-      ),
+      PATTERNS.map((p) => [
+        p.id,
+        approachChecks(p, p.explain)
+          .filter((c) => !c.ok)
+          .map((c) => c.text),
+      ]).filter(([, f]) => f.length),
     );
     expect(failures).toEqual({});
   });
 
   it("hires on a strong offline answer and not on a weak one", () => {
-    const strong = "As a result, ".repeat(1) + "I measured the page with Lighthouse, then split the bundle and added lazy loading and a cache. ".repeat(6);
-    const r = (answer: string) => ({ answer, durationSec: 60, offline: reviewSpeech(answer, 60, ["Lighthouse", "bundle", "lazy", "cache"]) });
+    const strong =
+      "As a result, ".repeat(1) +
+      "I measured the page with Lighthouse, then split the bundle and added lazy loading and a cache. ".repeat(6);
+    const r = (answer: string) => ({
+      answer,
+      durationSec: 60,
+      offline: reviewSpeech(answer, 60, ["Lighthouse", "bundle", "lazy", "cache"]),
+    });
     expect(offlineScore(r(strong))).toBeGreaterThanOrEqual(7);
     expect(offlineScore(r("um I don't know"))).toBeLessThan(5);
     expect(verdict([r(strong), r(strong), r(strong)]).hired).toBe(true);
     expect(verdict([r("no"), r(strong), r("no")]).hired).toBe(false);
+  });
+});
+
+describe("hint languages", () => {
+  it("picks the first supported browser language, else English only", () => {
+    expect(detectHintLang(["en-US", "uk-UA", "ru"])).toBe("uk");
+    expect(detectHintLang(["ru-RU"])).toBe("ru");
+    expect(detectHintLang(["en-GB", "ro"])).toBe("none");
+  });
+
+  it("shows translations only for the chosen language", () => {
+    const tr = { ru: "Привет", uk: "Привіт" };
+    expect(t(tr, "uk")).toBe("Привіт");
+    expect(t(tr, "none")).toBeUndefined();
+  });
+
+  it("phrase cards ask in the chosen language, or with an English cue", () => {
+    const card = initialState("2026-10-05").cards.find((c) => c.deck === "phrase" && c.back.startsWith("Sorry, could you repeat"))!;
+    expect(cardFront(card, "ru")).toMatch(/[а-я]/i);
+    expect(cardFront(card, "uk")).toMatch(/[іїєґ]/i);
+    expect(cardFront(card, "none")).not.toMatch(/[а-яіїєґ]/i);
+    expect(cardFront(card, "none")).toContain("Sorry, could …");
+  });
+
+  it("rule hints follow the language", () => {
+    const r = reviewSpeech("I am agree.", null, []);
+    expect(offlineToCorrections(r, "uk")[0].explanation).toContain("згоден");
+    expect(offlineToCorrections(r, "none")[0].explanation).not.toMatch(/[а-яіїєґ]/i);
   });
 });
